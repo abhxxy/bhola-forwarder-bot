@@ -176,6 +176,13 @@ async def process_and_forward(client: TelegramClient, dst_entity, message, trigg
         except Exception as e:
             logger.error(f"[X] Failed to send message #{msg_id}: {e}")
 
+async def prime_recent_messages(client: TelegramClient, src_entity):
+    """Mark the current backlog as seen so startup never re-forwards old posts."""
+    async for msg in client.iter_messages(src_entity, limit=8):
+        if msg and msg.raw_text:
+            _processed_hashes[msg.id] = hashlib.md5(msg.raw_text.encode("utf-8")).hexdigest()
+
+
 async def polling_engine(client: TelegramClient, src_entity, dst_entity):
     """Active background poller running every 0.5s to bypass Telegram channel push delays."""
     logger.info(f"[+] Active Ultra-Fast Poller started (Interval: {POLL_INTERVAL}s)")
@@ -239,6 +246,8 @@ async def main():
     src_title = getattr(src_entity, 'title', str(src_id))
     dst_title = getattr(dst_entity, 'title', str(dst_id))
 
+    await prime_recent_messages(client, src_entity)
+    logger.info(f"[+] Primed recent source backlog; waiting for new messages.")
     logger.info(f"⚡ ULTRA FAST HYBRID ACTIVE (0.5s): Monitoring [{src_title}] -> Forwarding to [{dst_title}]")
     print("\n[+] Real-time monitoring active (< 0.5s latency). Press Ctrl+C to exit.\n")
 

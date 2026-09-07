@@ -9,8 +9,8 @@ fi
 
 cd /data
 set +e
-python /app/main.py 2>&1 | tee -a /data/runtime.log
-status=${PIPESTATUS[0]}
+python /app/main.py
+status=$?
 if [ "$status" -ne 0 ]; then
   printf 'Bhola forwarder exited with status %s; keeping container alive for diagnostics.\n' "$status"
   sleep 3600

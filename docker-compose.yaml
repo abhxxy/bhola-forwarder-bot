@@ -1,0 +1,19 @@
+services:
+  bot:
+    build: .
+    restart: unless-stopped
+    environment:
+      API_ID: ${API_ID}
+      API_HASH: ${API_HASH}
+      SOURCE_CHANNEL_ID: ${SOURCE_CHANNEL_ID}
+      DEST_CHANNEL_ID: ${DEST_CHANNEL_ID}
+      SESSION_NAME: ${SESSION_NAME:-bhola_session}
+      POLL_INTERVAL_SECONDS: ${POLL_INTERVAL_SECONDS:-0.5}
+      TELETHON_SESSION_B64: ${TELETHON_SESSION_B64}
+    volumes:
+      - bot-data:/data
+    expose:
+      - "8000"
+volumes:
+  bot-data:
+    name: bhola-forwarder-bot-data
